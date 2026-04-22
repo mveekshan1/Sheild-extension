@@ -98,9 +98,9 @@ See CONTRIBUTING.md
 MIT License
 
 ---
+## 👨‍💻 Team — AI PROMPTERs
 
-## 👨‍💻 Team
+[![Team Leader, System Design & Chrome Extension Development](https://img.shields.io/badge/Team%20Leader-mveekshan1-blue?style=for-the-badge&logo=github)](https://github.com/mveekshan1)
 
-AI PROMPTERS
-- [@mveekshan1](https://github.com/mveekshan1) — Team Leader, System Design & Chrome Extension Development
-- [@sakshi-kumari28](https://github.com/sakshi-kumari28) — AI Developer, Gemini Integration & Threat Analysis
+[![AI Developer, Gemini Integration & Threat Analysis](https://img.shields.io/badge/AI%20Developer-sakshi--kumari28-green?style=for-the-badge&logo=github)](https://github.com/sakshi-kumari28)
+
