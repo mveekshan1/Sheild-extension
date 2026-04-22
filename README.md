@@ -94,7 +94,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## 📄 License
 
-MIT License
+MIT License [LICENSE](./LICENSE)
 
 ---
 ## 👨‍💻 Team — AI PROMPTERs
