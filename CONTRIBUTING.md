@@ -1,38 +1,24 @@
 # 🤝 Contributing to SHIELD
 
-Thank you for your interest in contributing to SHIELD! We welcome contributions from developers of all skill levels. This document provides guidelines and information to help you get started.
+Thank you for your interest in contributing.
 
-## Table of Contents
+---
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Submitting Changes](#submitting-changes)
-- [Reporting Issues](#reporting-issues)
-- [Documentation](#documentation)
+## 📌 Scope
 
-## Code of Conduct
+This is a hackathon prototype. Keep contributions simple and practical.
 
-This project follows a code of conduct to ensure a welcoming environment for all contributors. By participating, you agree to:
+---
 
-- Be respectful and inclusive
-- Focus on constructive feedback
-- Accept responsibility for mistakes
-- Show empathy towards other contributors
-- Help create a positive community
+## 🛠️ Setup
 
-## Getting Started
+git clone https://github.com/mveekshan1/Sheild-extension.git
 
-### Prerequisites
+Load extension via chrome://extensions → Load Unpacked
 
-- Node.js 14+ and npm 6+
-- Google Chrome or Chromium browser
-- Git
-- A code editor (VS Code recommended)
+---
 
-### Setup
+## ✍️ Guidelines
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
@@ -41,49 +27,29 @@ This project follows a code of conduct to ensure a welcoming environment for all
    cd shield-extension
    ```
 
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+---
 
-4. **Set up environment variables**:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your Gemini API key
-   ```
+## 🔄 Workflow
 
-5. **Load the extension** in Chrome:
-   - Open `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the project root directory
+git checkout -b feature/your-feature  
+git commit -m "feat: your change"  
+git push  
 
-## Development Workflow
+---
 
-### Branching Strategy
+## 🐛 Issues
 
-- `main`: Production-ready code
-- `develop`: Integration branch for features
-- `feature/*`: New features
-- `bugfix/*`: Bug fixes
-- `hotfix/*`: Critical fixes for production
+Include steps, expected vs actual, browser version.
 
-### Development Process
+---
 
-1. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+## ⚠️ Security
 
-2. **Make your changes** following our coding standards
+Do NOT commit API keys.
 
-3. **Test your changes**:
-   ```bash
-   npm run lint
-   npm run build
-   ```
+---
 
-4. **Test the extension** manually using the demo guide
+## 💡 Focus
 
 5. **Commit your changes**:
    ```bash
