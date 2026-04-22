@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "SHIELD - Threat Detection",
+  "version": "1.0.0",
+  "description": "Real-time browser security threat detection powered by Google Gemini",
+
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "management",
+    "webRequest"
+  ],
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/contentScript.js"],
+      "run_at": "document_start"
+    }
+  ],
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "SHIELD - Threat Detector"
+  },
+
+  "icons": {
+    "16": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect fill='%234CAF50' width='16' height='16'/><text x='8' y='12' font-size='10' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>",
+    "48": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect fill='%234CAF50' width='48' height='48'/><text x='24' y='36' font-size='30' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>",
+    "128": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect fill='%234CAF50' width='128' height='128'/><text x='64' y='96' font-size='80' font-weight='bold' fill='white' text-anchor='middle'>S</text></svg>"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "shield-extension",
+  "version": "1.0.0",
+  "description": "Real-time browser threat detection powered by Google Gemini AI",
+  "main": "src/background/background.js",
+  "scripts": {
+    "build": "npm run clean && npm run copy-files",
+    "clean": "rimraf dist",
+    "copy-files": "mkdirp dist && ncp src dist && ncp public dist",
+    "dev": "npm run build && npm run watch",
+    "watch": "npm run build && onchange 'src/**/*' 'public/**/*' -- npm run build",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "test": "echo \"No tests specified yet\" && exit 0",
+    "package": "npm run build && cd dist && zip -r ../shield-extension-v$(node -p \"require('../package.json').version\").zip .",
+    "docs": "npm run docs:build",
+    "docs:build": "echo \"Documentation built\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/shield-extension.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "security",
+    "threat-detection",
+    "ai",
+    "gemini",
+    "browser-security",
+    "cybersecurity"
+  ],
+  "author": "SHIELD Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/shield-extension/issues"
+  },
+  "homepage": "https://github.com/yourusername/shield-extension#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "mkdirp": "^1.0.4",
+    "ncp": "^2.0.0",
+    "onchange": "^7.1.0",
+    "rimraf": "^3.0.2"
+  },
+  "extension": {
+    "manifest": "public/manifest.json",
+    "background": "src/background/background.js",
+    "content": "src/content/contentScript.js",
+    "popup": "src/popup/popup.html"
+  },
+  "contributors": [
+    {
+      "name": "SHIELD Development Team",
+      "email": "team@shield-extension.com"
+    }
+  ],
+  "funding": {
+    "type": "patreon",
+    "url": "https://patreon.com/shield-extension"
+  }
+}

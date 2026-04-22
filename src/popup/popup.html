@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHIELD - Threat Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="shield-container">
+    <header>
+      <h1>🛡️ SHIELD</h1>
+      <p>Real-Time Threat Detection</p>
+    </header>
+
+    <div id="status-section">
+      <div id="risk-score">
+        <span class="label">Risk Score:</span>
+        <span id="score-value">0</span>
+        <span id="score-level">LOW</span>
+      </div>
+      
+      <div id="threat-count">
+        <span class="label">Threats Detected:</span>
+        <span id="threat-count-value">0</span>
+      </div>
+    </div>
+
+    <div id="threats-section">
+      <h2>Active Threats</h2>
+      <div id="threats-list">
+        <div id="no-threats">No threats detected. You're safe! ✅</div>
+      </div>
+    </div>
+
+    <div id="analysis-section" style="display: none;">
+      <h2>Gemini Analysis</h2>
+      <div id="gemini-explanation">
+        Analyzing threat with Google Gemini...
+      </div>
+    </div>
+
+    <div id="actions-section">
+      <button id="analyze-btn" disabled>Analyze with Gemini</button>
+      <button id="disable-btn" disabled>Disable Suspicious Extension</button>
+      <button id="clear-btn">Clear Threats</button>
+    </div>
+
+    <div id="instructions">
+      <p><strong>How to test:</strong></p>
+      <ul>
+        <li>Open DevTools Console</li>
+        <li>Run: <code>fetch('http://192.168.1.100/malicious')</code></li>
+        <li>Or inject: <code>document.body.appendChild(document.createElement('script'))</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="gemini.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

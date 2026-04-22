@@ -1,0 +1,64 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "webextensions": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "indent": ["error", 2],
+    "linebreak-style": "off",
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-unused-vars": ["warn"],
+    "no-console": "off",
+    "no-debugger": "warn",
+    "prefer-const": "error",
+    "no-var": "error",
+    "arrow-spacing": "error",
+    "brace-style": "error",
+    "comma-dangle": ["error", "always-multiline"],
+    "eqeqeq": ["error", "always"],
+    "func-call-spacing": ["error", "never"],
+    "key-spacing": "error",
+    "keyword-spacing": "error",
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"],
+    "space-before-blocks": "error",
+    "space-before-function-paren": ["error", "never"],
+    "space-in-parens": ["error", "never"],
+    "space-infix-ops": "error",
+    "space-unary-ops": "error"
+  },
+  "globals": {
+    "chrome": "readonly",
+    "console": "readonly",
+    "fetch": "readonly",
+    "setTimeout": "readonly",
+    "clearTimeout": "readonly",
+    "setInterval": "readonly",
+    "clearInterval": "readonly",
+    "Promise": "readonly",
+    "Error": "readonly",
+    "JSON": "readonly",
+    "Date": "readonly",
+    "Math": "readonly",
+    "Object": "readonly",
+    "Array": "readonly",
+    "String": "readonly",
+    "Number": "readonly",
+    "Boolean": "readonly",
+    "RegExp": "readonly",
+    "Map": "readonly",
+    "Set": "readonly",
+    "WeakMap": "readonly",
+    "WeakSet": "readonly",
+    "GEMINI_API_KEY": "readonly"
+  }
+}
