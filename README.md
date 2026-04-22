@@ -86,6 +86,9 @@ Edit gemini.js and add your API key.
 - Google Gemini API  
 
 ---
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
 ## 🤝 Contributing
 
