@@ -37,7 +37,7 @@ This project follows a code of conduct to ensure a welcoming environment for all
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/yourusername/shield-extension.git
+   git clone https://github.com/mveekshan1/Sheild-extension.git
    cd shield-extension
    ```
 
