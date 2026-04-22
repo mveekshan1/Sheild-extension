@@ -90,10 +90,6 @@ Edit gemini.js and add your API key.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
-## 🤝 Contributing
-
-See CONTRIBUTING.md
-
 ---
 
 ## 📄 License
