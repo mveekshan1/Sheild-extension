@@ -101,6 +101,6 @@ MIT License
 
 ## 👨‍💻 Team
 
-AI PROMPTERs
-@mveekshan1
-@sakshi-kumari28
+AI PROMPTERS
+- [@mveekshan1](https://github.com/mveekshan1) — Team Leader, System Design & Chrome Extension Development
+- [@sakshi-kumari28](https://github.com/sakshi-kumari28) — AI Developer, Gemini Integration & Threat Analysis
