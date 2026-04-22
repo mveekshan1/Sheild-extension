@@ -102,3 +102,5 @@ MIT License
 ## 👨‍💻 Team
 
 AI PROMPTERs
+@mveekshan1
+@sakshi-kumari28
