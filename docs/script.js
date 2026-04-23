@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!Array.isArray(issues) || issues.length === 0) {
       const listItem = document.createElement('li');
-      listItem.textContent = 'No issues detected for this URL.';
+      listItem.textContent = 'No major issues detected.';
       listItem.className = 'placeholder-text';
       issuesList.appendChild(listItem);
       return;
