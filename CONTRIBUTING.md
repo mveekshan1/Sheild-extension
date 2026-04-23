@@ -113,8 +113,8 @@ Use the demo guide (`docs/demo.md`) for comprehensive testing:
 ### Web UI Demo Testing
 
 The standalone web demo is located in `docs/` (`index.html`, `styles.css`, `script.js`).
-To test the demo locally:
-1. Ensure the backend is running locally (`node backend/server.js` on port 3000).
+To test the demo and the backend locally:
+1. Ensure the backend is running locally (Navigate to `backend/` folder and run `npm start` on port 3000).
 2. Open `docs/index.html` directly in your browser.
 3. Click the simulation buttons to verify the AI explanations return correctly.
 
