@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-1.5-flash'; // Fixed directly to 1.5-flash
+const GEMINI_MODEL = (process.env.GEMINI_MODEL && process.env.GEMINI_MODEL !== 'gemini-pro') ? process.env.GEMINI_MODEL : 'gemini-1.5-flash';
 
 app.use(cors());
 app.use(express.json());
@@ -46,7 +46,7 @@ app.post('/analyze', async (req, res) => {
   }
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     
     const requestBody = {
       contents: [{
