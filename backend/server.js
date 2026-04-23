@@ -20,6 +20,18 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'ok', backend: 'gemini', model: GEMINI_MODEL });
 });
 
+// Endpoint to list available models for debugging
+app.get('/api/models', async (req, res) => {
+  try {
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`;
+    const response = await fetch(listUrl);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Main analysis endpoint used by both Extension and Web Demo
 app.post('/analyze', async (req, res) => {
   const { summary } = req.body;
@@ -34,7 +46,7 @@ app.post('/analyze', async (req, res) => {
   }
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
     
     const requestBody = {
       contents: [{
