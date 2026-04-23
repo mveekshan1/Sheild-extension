@@ -4,91 +4,141 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = (process.env.GEMINI_MODEL && process.env.GEMINI_MODEL !== 'gemini-pro') ? process.env.GEMINI_MODEL : 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 app.use(cors());
 app.use(express.json());
 
-// Root endpoint for simple health check
+/* -------------------- HEALTH -------------------- */
+
 app.get('/', (req, res) => {
-  res.status(200).send('SHIELD Backend API is running properly!');
+  res.send('SHIELD Backend Running');
 });
 
-// Explicit health status endpoint
 app.get('/api/status', (req, res) => {
-  res.json({ status: 'ok', backend: 'gemini', model: GEMINI_MODEL });
+  res.json({ status: 'ok', model: GEMINI_MODEL });
 });
 
-// Endpoint to list available models for debugging
-app.get('/api/models', async (req, res) => {
+/* -------------------- HELPER: BASIC URL ANALYSIS -------------------- */
+
+function analyzeURL(url) {
+  let score = 0;
+  const issues = [];
+
   try {
-    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`;
-    const response = await fetch(listUrl);
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const parsed = new URL(url);
+
+    // Rule 1: HTTP (not HTTPS)
+    if (parsed.protocol !== 'https:') {
+      score += 30;
+      issues.push('Uses insecure HTTP protocol');
+    }
+
+    // Rule 2: IP-based URL
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(parsed.hostname)) {
+      score += 40;
+      issues.push('Uses direct IP address instead of domain');
+    }
+
+    // Rule 3: Suspicious keywords
+    const suspiciousKeywords = ['login', 'verify', 'secure', 'account', 'bank'];
+    if (suspiciousKeywords.some(k => parsed.href.toLowerCase().includes(k))) {
+      score += 15;
+      issues.push('Contains phishing-related keywords');
+    }
+
+    // Rule 4: Very long URL
+    if (url.length > 120) {
+      score += 15;
+      issues.push('Unusually long URL');
+    }
+
+    // Rule 5: Many subdomains
+    if (parsed.hostname.split('.').length > 3) {
+      score += 10;
+      issues.push('Too many subdomains');
+    }
+
+  } catch (err) {
+    return { score: 90, issues: ['Invalid URL format'] };
   }
-});
 
-// Main analysis endpoint used by both Extension and Web Demo
+  return {
+    score: Math.min(score, 100),
+    issues
+  };
+}
+
+/* -------------------- MAIN ENDPOINT -------------------- */
+
 app.post('/analyze', async (req, res) => {
-  const { summary } = req.body;
+  const { url } = req.body;
 
-  if (!summary) {
-    return res.status(400).json({ error: 'Missing threat summary.' });
+  if (!url) {
+    return res.status(400).json({ error: 'URL is required' });
   }
 
   if (!GEMINI_API_KEY) {
-    console.error('ERROR: GEMINI_API_KEY is not configured in the environment variables.');
-    return res.status(500).json({ error: 'Server misconfiguration: API key is missing.' });
+    return res.status(500).json({ error: 'API key missing' });
   }
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-    
-    const requestBody = {
-      contents: [{
-        parts: [{ text: `Analyze this browser threat summary and provide a concise 2-3 sentence explanation of risk: ${summary}` }],
-      }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 150,
-      },
-    };
+  const analysis = analyzeURL(url);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+  try {
+    const prompt = `
+You are a cybersecurity assistant.
+
+Analyze the following URL risk report and explain clearly to a normal user.
+
+URL: ${url}
+
+Risk Score: ${analysis.score}/100
+
+Detected Issues:
+${analysis.issues.length ? analysis.issues.join(', ') : 'No major issues detected'}
+
+Explain:
+- Is this URL safe or risky?
+- What should the user do?
+Keep it simple and concise (2-3 sentences).
+`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      }
+    );
 
     if (!response.ok) {
-      const errorData = await response.text();
-      return res.status(response.status).json({ error: `Gemini API Error: ${errorData}` });
+      const errText = await response.text();
+      return res.status(response.status).json({ error: errText });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!text) {
-      throw new Error('Invalid response format received from Gemini.');
-    }
+    const explanation =
+      data.candidates?.[0]?.content?.parts?.[0]?.text || "No explanation generated";
 
-    res.json({ explanation: text.trim() });
+    res.json({
+      url,
+      risk_score: analysis.score,
+      issues: analysis.issues,
+      explanation
+    });
 
-  } catch (error) {
-    console.error('Gemini Backend Processing Error:', error);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
+/* -------------------- START SERVER -------------------- */
+
 app.listen(PORT, () => {
-  console.log(`🚀 SHIELD Gemini backend listening on port ${PORT}`);
-  if (!GEMINI_API_KEY) {
-    console.warn('⚠️ WARNING: GEMINI_API_KEY is not set. Requests will fail until configured.');
-  }
+  console.log(`🚀 SHIELD backend running on port ${PORT}`);
 });
