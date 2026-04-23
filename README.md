@@ -66,9 +66,17 @@ Open chrome://extensions → Enable Developer Mode → Load Unpacked
 
 ## 🔑 Gemini API Setup
 
-Edit gemini.js and add your API key.
+Run the secure backend server from `backend/server.js` and set `GEMINI_API_KEY` in your environment instead of storing keys in the extension.
 
-⚠️ Do NOT commit your API key
+Example:
+
+```bash
+cd backend
+set GEMINI_API_KEY=your_gemini_api_key
+node server.js
+```
+
+Then open the extension popup and use the Gemini analysis button. The frontend only sends summaries to the backend; no API key is stored in the extension.
 
 ---
 

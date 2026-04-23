@@ -9,7 +9,9 @@
     "tabs",
     "storage",
     "management",
-    "webRequest"
+    "cookies",
+    "webRequest",
+    "webRequestBlocking"
   ],
 
   "host_permissions": [

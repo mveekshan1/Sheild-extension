@@ -14,7 +14,8 @@
     "test": "echo \"No tests specified yet\" && exit 0",
     "package": "npm run build && cd dist && zip -r ../shield-extension-v$(node -p \"require('../package.json').version\").zip .",
     "docs": "npm run docs:build",
-    "docs:build": "echo \"Documentation built\" && exit 0"
+    "docs:build": "echo \"Documentation built\" && exit 0",
+    "backend": "node backend/server.js"
   },
   "repository": {
     "type": "git",

@@ -15,6 +15,8 @@
 /**
  * UI configuration constants
  */
+const GEMINI_BACKEND_URL = 'http://localhost:3000/api/gemini-explain';
+
 const UI_CONFIG = {
   // Risk level thresholds
   RISK_LEVELS: {
@@ -30,9 +32,10 @@ const UI_CONFIG = {
   MESSAGES: {
     NO_THREATS: 'No threats detected. You\'re safe! ✅',
     ANALYZING: 'Analyzing threat with Google Gemini...',
-    GEMINI_NOT_LOADED: 'Gemini integration not loaded. Please check gemini.js',
+    GEMINI_NOT_LOADED: 'Gemini backend unavailable. Start the local Gemini server.',
     EXTENSION_DISABLED: 'Extension disabled successfully.',
     NO_EXTENSIONS: 'No user extensions found to disable.',
+    DOMAIN_BLOCKED: 'Domain blocked and future requests will be canceled.',
   },
 };
 
@@ -85,6 +88,11 @@ function setupEventListeners() {
 
   if (analyzeBtn) {
     analyzeBtn.addEventListener('click', handleAnalyzeClick);
+  }
+
+  const blockBtn = document.getElementById('block-btn');
+  if (blockBtn) {
+    blockBtn.addEventListener('click', handleBlockClick);
   }
 
   if (disableBtn) {
@@ -190,6 +198,7 @@ function updateThreatsList() {
 function updateButtonStates() {
   const analyzeBtn = document.getElementById('analyze-btn');
   const disableBtn = document.getElementById('disable-btn');
+  const blockBtn = document.getElementById('block-btn');
   const hasThreats = popupState.currentThreats.length > 0;
 
   if (analyzeBtn) {
@@ -198,6 +207,10 @@ function updateButtonStates() {
 
   if (disableBtn) {
     disableBtn.disabled = !hasThreats;
+  }
+
+  if (blockBtn) {
+    blockBtn.disabled = !hasThreats;
   }
 }
 
@@ -226,8 +239,10 @@ function createThreatElement(threat, index) {
   const div = document.createElement('div');
   div.className = 'threat-item';
 
-  const type = threat.type === 'NETWORK_THREAT' ? 'Network' : 'DOM Injection';
   const severity = threat.severity || 'MEDIUM';
+  const type = threat.type === 'NETWORK_THREAT' ? 'Network'
+    : threat.type === 'COOKIE_THREAT' ? 'Cookie'
+    : 'DOM Injection';
 
   div.innerHTML = `
     <div class="threat-header">
@@ -236,6 +251,7 @@ function createThreatElement(threat, index) {
     </div>
     <div class="threat-details">
       ${threat.domain ? `<div>Domain: ${threat.domain}</div>` : ''}
+      ${threat.cookie ? `<div>Cookie: ${threat.cookie.name}@${threat.cookie.domain}</div>` : ''}
       ${threat.details ? `<div>Type: ${threat.details}</div>` : ''}
       ${threat.factors ? `<div>Factors: ${threat.factors.join(', ')}</div>` : ''}
       <div>Score: +${threat.score}</div>
@@ -315,16 +331,23 @@ async function analyzeThreatsWithGemini() {
       }
 
       const summary = response.summary;
+      try {
+        const result = await fetch(GEMINI_BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ summary }),
+        });
 
-      if (window.ShieldGemini) {
-        try {
-          const explanation = await window.ShieldGemini.getExplanation(summary);
-          resolve(explanation);
-        } catch (error) {
-          reject(error);
+        if (!result.ok) {
+          const responseText = await result.text();
+          throw new Error(`Gemini backend returned ${result.status}: ${responseText}`);
         }
-      } else {
-        resolve(UI_CONFIG.MESSAGES.GEMINI_NOT_LOADED);
+
+        const payload = await result.json();
+        resolve(payload.explanation || 'No explanation returned from backend.');
+      } catch (error) {
+        console.error('SHIELD: Gemini backend error:', error);
+        resolve(`${UI_CONFIG.MESSAGES.GEMINI_NOT_LOADED} ${error.message}`);
       }
     });
   });
@@ -385,12 +408,45 @@ function clearThreats() {
 
     updateUI();
 
-    // Hide analysis section
     const analysisSection = document.getElementById('analysis-section');
     if (analysisSection) {
       analysisSection.style.display = 'none';
     }
   });
+}
+
+/**
+ * Handle block domain button click
+ */
+function handleBlockClick() {
+  const domain = getMostRiskyDomain();
+  if (!domain) {
+    showError('No domain available to block.');
+    return;
+  }
+
+  chrome.runtime.sendMessage({ type: 'BLOCK_DOMAIN', domain }, (response) => {
+    if (chrome.runtime.lastError) {
+      showError('Unable to block domain: ' + chrome.runtime.lastError.message);
+      return;
+    }
+
+    showSuccess(UI_CONFIG.MESSAGES.DOMAIN_BLOCKED);
+    loadThreatData();
+  });
+}
+
+/**
+ * Get the most risky domain from current threats
+ * @returns {string|null} Domain to block
+ */
+function getMostRiskyDomain() {
+  const networkThreat = popupState.currentThreats.find(threat => threat.domain);
+  if (networkThreat) {
+    return networkThreat.domain;
+  }
+  const cookieThreat = popupState.currentThreats.find(threat => threat.cookie?.domain);
+  return cookieThreat ? cookieThreat.cookie.domain : null;
 }
 
 // ============================================================================
