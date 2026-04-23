@@ -20,6 +20,15 @@ This project is currently in the **prototype stage** for the
 
 ---
 
+## 🚀 Live Demo (Web Simulator)
+
+Experience SHIELD's threat detection via our interactive web simulator:
+👉 **[View Live Demo](https://mveekshan1.github.io/Sheild-extension/)**
+
+> **Note:** The web demo simulates extension features using a static frontend (`docs/`), while a local backend or deployed production service provides the Gemini AI inference. It showcases the look and feel without requiring Chrome installation.
+
+---
+
 ## 🎯 Problem
 
 Browser extensions operate with high permissions, but users:
@@ -50,9 +59,7 @@ SHIELD is a Chrome extension that:
 
 ---
 
-## 🏗️ Architecture
-
-Browser Activity → Detection → Risk Scoring → Gemini → Alert
+Browser Activity → Detection → Risk Scoring → Gemini (+ Backend API) → Alert / Web UI Demo
 
 ---
 
@@ -109,4 +116,5 @@ MIT License
 
 ## 👨‍💻 Team
 
-AI PROMPTERs
+- **mveekshan1** - Team Leader, System Design & Development ([GitHub](https://github.com/mveekshan1))
+- **sakshi-kumari28** - AI Developer, Gemini Integration & Threat Analysis ([GitHub](https://github.com/sakshi-kumari28))

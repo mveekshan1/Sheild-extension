@@ -110,6 +110,14 @@ Use the demo guide (`docs/demo.md`) for comprehensive testing:
 3. **End-to-End Testing**: Test complete user workflows
 4. **Security Testing**: Test threat detection accuracy
 
+### Web UI Demo Testing
+
+The standalone web demo is located in `docs/` (`index.html`, `styles.css`, `script.js`).
+To test the demo locally:
+1. Ensure the backend is running locally (`node backend/server.js` on port 3000).
+2. Open `docs/index.html` directly in your browser.
+3. Click the simulation buttons to verify the AI explanations return correctly.
+
 ### Automated Testing
 
 ```bash

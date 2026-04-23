@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHIELD - Real-Time Browser Threat Detection</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="logo">
+        <span class="icon">🛡️</span>
+        <h1>SHIELD Simulator</h1>
+      </div>
+      <p class="subtitle">AI-Powered Threat Detection Demo</p>
+    </header>
+
+    <main>
+      <section class="controls-section">
+        <h2>Simulate Threat Scenarios</h2>
+        <p>Select a scenario to analyze how SHIELD's Gemini AI engine interprets the threat.</p>
+        
+        <div class="button-group">
+          <button class="action-btn" data-scenario="network">
+            🌐 Simulate Network Threat
+          </button>
+          <button class="action-btn" data-scenario="dom">
+            📝 Simulate DOM Injection
+          </button>
+          <button class="action-btn" data-scenario="cookie">
+            🍪 Simulate Cookie Risk
+          </button>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="dashboard">
+          <div class="dashboard-header">
+            <h3>Analysis Results</h3>
+            <div id="status-indicator" class="status-indicator idle"></div>
+          </div>
+          
+          <div class="metric-cards">
+            <div class="card">
+              <h4>Risk Score</h4>
+              <div class="score-display">
+                <span id="risk-score">0</span><span class="max-score">/100</span>
+              </div>
+            </div>
+            <div class="card">
+              <h4>Severity Level</h4>
+              <div id="severity-level" class="severity-display safe">SAFE</div>
+            </div>
+          </div>
+
+          <div class="explanation-container">
+            <h4>Gemini AI Explanation</h4>
+            <div id="explanation-box" class="explanation-box">
+              <p class="placeholder-text">Waiting for threat simulation...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Powered by Google Gemini API | <a href="https://github.com/mveekshan1/Sheild-extension" target="_blank">View on GitHub</a></p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
