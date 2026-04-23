@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // and replace the production URL accordingly.
   const BACKEND_URL = isLocalhost 
     ? 'http://localhost:3000/analyze' 
-    : 'https://shield-demo-backend.onrender.com/analyze';
+    : 'https://sheild-extension.onrender.com/analyze';
 
   // Demo Scenarios Payload Simulation
   const SCENARIOS = {
