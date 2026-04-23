@@ -19,20 +19,13 @@
 
     <main>
       <section class="controls-section">
-        <h2>Simulate Threat Scenarios</h2>
-        <p>Select a scenario to analyze how SHIELD's Gemini AI engine interprets the threat.</p>
+        <h2>Analyze Website URL</h2>
+        <p>Enter any URL to test SHIELD's dynamic DNS, Fetch, and structural threat detection.</p>
         
-        <div class="button-group">
-          <button class="action-btn" data-scenario="network">
-            🌐 Simulate Network Threat
-          </button>
-          <button class="action-btn" data-scenario="dom">
-            📝 Simulate DOM Injection
-          </button>
-          <button class="action-btn" data-scenario="cookie">
-            🍪 Simulate Cookie Risk
-          </button>
-        </div>
+        <form id="analyze-form" class="url-input-form">
+          <input type="url" id="url-input" placeholder="e.g. https://google.com or http://192.168.1.1/login" required autocomplete="off" />
+          <button type="submit" class="action-btn analyze-btn">🔍 Analyze URL</button>
+        </form>
       </section>
 
       <section class="results-section">
@@ -53,6 +46,13 @@
               <h4>Severity Level</h4>
               <div id="severity-level" class="severity-display safe">SAFE</div>
             </div>
+          </div>
+
+          <div class="issues-container">
+            <h4>Detected Structural Issues</h4>
+            <ul id="issues-list" class="issues-list">
+              <li class="placeholder-text">Submit a URL to see technical findings.</li>
+            </ul>
           </div>
 
           <div class="explanation-container">

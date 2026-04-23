@@ -1,106 +1,104 @@
 /**
  * SHIELD Web Demo Script
- * Simulates interactions with the backend for threat analysis.
+ * Interacts with the backend for dynamic URL threat analysis.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Dynamically configure the backend URL based on environment
   const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   
-  // Use localhost for local dev and a deployed URL placeholder for production
-  // Note: For a live public demo, ensure the backend is deployed (e.g. Render/Vercel)
-  // and replace the production URL accordingly.
   const BACKEND_URL = isLocalhost 
     ? 'http://localhost:3000/analyze' 
     : 'https://sheild-extension.onrender.com/analyze';
 
-  // Demo Scenarios Payload Simulation
-  const SCENARIOS = {
-    network: {
-      summary: "Network request to suspicious-malware.xyz with risks: High frequency requests (15 in 10s), Unknown domain access",
-      score: 85,
-      severity: "HIGH"
-    },
-    dom: {
-      summary: "DOM injection detected on example.com - SCRIPT_INJECTION",
-      score: 40,
-      severity: "MEDIUM"
-    },
-    cookie: {
-      summary: "Cookie session_id@phishing-site.ru with risks: Cookie missing Secure flag, Potential third-party cookie",
-      score: 55,
-      severity: "MEDIUM"
-    }
-  };
-
-  const buttons = document.querySelectorAll('.action-btn');
+  const analyzeForm = document.getElementById('analyze-form');
+  const urlInput = document.getElementById('url-input');
+  const analyzeBtn = document.querySelector('.analyze-btn');
   const statusIndicator = document.getElementById('status-indicator');
   const riskScoreDisplay = document.getElementById('risk-score');
   const severityLevelDisplay = document.getElementById('severity-level');
+  const issuesList = document.getElementById('issues-list');
   const explanationBox = document.getElementById('explanation-box');
 
-  // Add click listeners to all scenario buttons
-  buttons.forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const scenarioKey = e.currentTarget.dataset.scenario;
-      await simulateThreatAnalysis(scenarioKey, e.currentTarget);
-    });
+  analyzeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const targetUrl = urlInput.value.trim();
+    if (!targetUrl) return;
+
+    await analyzeThreat(targetUrl);
   });
 
-  /**
-   * Disables/enables buttons to prevent concurrent requests
-   */
-  function setButtonsDisabled(disabled) {
-    buttons.forEach(btn => btn.disabled = disabled);
-  }
-
-  /**
-   * Execute the simulation request
-   */
-  async function simulateThreatAnalysis(scenarioKey, activeBtn) {
-    const scenarioData = SCENARIOS[scenarioKey];
-    
+  async function analyzeThreat(targetUrl) {
     // UI Update - Loading State
-    setButtonsDisabled(true);
-    activeBtn.innerHTML = `⏳ Analyzing...`;
+    urlInput.disabled = true;
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = `⏳ Analyzing...`;
     statusIndicator.className = 'status-indicator loading';
     
     riskScoreDisplay.textContent = '...';
     severityLevelDisplay.textContent = 'ANALYZING';
     severityLevelDisplay.className = 'severity-display';
+    issuesList.innerHTML = `<li class="placeholder-text">Scanning structural and network layers...</li>`;
     explanationBox.innerHTML = `<p class="placeholder-text">Connecting to Gemini AI Engine (${isLocalhost ? 'Local' : 'Remote'})...</p>`;
 
     try {
       // POST Request to backend API
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ summary: scenarioData.summary })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: targetUrl })
       });
 
       if (!response.ok) {
-        throw new Error(`Backend Error (${response.status}) - Ensure Server is Running.`);
+        let errMessage = `Backend Error (${response.status})`;
+        try {
+          const errData = await response.json();
+          if(errData.error) errMessage += `: ${errData.error}`;
+        } catch(e) {}
+        throw new Error(errMessage);
       }
 
       const data = await response.json();
       
+      // Calculate severity string
+      let severityStr = 'SAFE';
+      let severityClass = 'safe';
+      if (data.risk_score > 60) {
+        severityStr = 'HIGH';
+        severityClass = 'high';
+      } else if (data.risk_score > 30) {
+        severityStr = 'MEDIUM';
+        severityClass = 'medium';
+      }
+
       // Update UI with Success state
       statusIndicator.className = 'status-indicator success';
-      riskScoreDisplay.textContent = scenarioData.score;
+      riskScoreDisplay.textContent = data.risk_score;
+      severityLevelDisplay.textContent = severityStr;
+      severityLevelDisplay.className = `severity-display ${severityClass}`;
       
-      severityLevelDisplay.textContent = scenarioData.severity;
-      severityLevelDisplay.className = `severity-display ${scenarioData.severity.toLowerCase()}`;
+      // Render Issues List
+      issuesList.innerHTML = '';
+      if (data.issues && data.issues.length > 0) {
+        data.issues.forEach(issue => {
+          const li = document.createElement('li');
+          li.textContent = issue;
+          issuesList.appendChild(li);
+        });
+      } else {
+        issuesList.innerHTML = `<li class="placeholder-text">No technical issues detected.</li>`;
+      }
       
+      // Render Gemini Explanation
       explanationBox.innerHTML = `<p class="response-text">${data.explanation || "No explanation provided."}</p>`;
       
     } catch (error) {
-      // Handle Network/Backend Errors gracefully for demo reliability
+      // Handle Network/Backend Errors gracefully
       statusIndicator.className = 'status-indicator error';
       riskScoreDisplay.textContent = '—';
       severityLevelDisplay.textContent = 'ERROR';
       severityLevelDisplay.className = 'severity-display high';
+      
+      issuesList.innerHTML = `<li class="placeholder-text">Scan aborted due to connection failure.</li>`;
       
       explanationBox.innerHTML = `
         <div class="error-text">
@@ -113,12 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     } finally {
       // Restore Button State
-      setButtonsDisabled(false);
-      
-      // Reset button text
-      if (scenarioKey === 'network') activeBtn.innerHTML = `🌐 Simulate Network Threat`;
-      if (scenarioKey === 'dom') activeBtn.innerHTML = `📝 Simulate DOM Injection`;
-      if (scenarioKey === 'cookie') activeBtn.innerHTML = `🍪 Simulate Cookie Risk`;
+      urlInput.disabled = false;
+      analyzeBtn.disabled = false;
+      analyzeBtn.innerHTML = `🔍 Analyze URL`;
     }
   }
 });

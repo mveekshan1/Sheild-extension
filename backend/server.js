@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const dns = require('dns').promises;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,7 +24,7 @@ app.get('/api/status', (req, res) => {
 
 /* -------------------- HELPER: BASIC URL ANALYSIS -------------------- */
 
-function analyzeURL(url) {
+async function analyzeURL(url) {
   let score = 0;
   const issues = [];
 
@@ -61,8 +62,64 @@ function analyzeURL(url) {
       issues.push('Too many subdomains');
     }
 
+    // DNS Resolution Check
+    try {
+      await dns.lookup(parsed.hostname);
+    } catch (e) {
+      score += 50;
+      issues.push('DNS resolution failed (Domain does not exist or unreachable)');
+    }
+
+    // Fetch Page Content safely
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 sec timeout
+        
+        const res = await fetch(url, { 
+          signal: controller.signal,
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+        });
+        clearTimeout(timeoutId);
+
+        if (res.redirected) {
+          score += 10;
+          issues.push('Detected automated redirect chain');
+        }
+
+        const html = await res.text();
+        
+        const iframeCount = (html.match(/<iframe/gi) || []).length;
+        if (iframeCount > 0) {
+          score += 10;
+          issues.push(`Detected ${iframeCount} iframes`);
+        }
+
+        const scriptCount = (html.match(/<script/gi) || []).length;
+        if (scriptCount > 10) {
+          score += 10;
+          issues.push('High number of scripts detected');
+        }
+
+        const formCount = (html.match(/<form/gi) || []).length;
+        if (formCount > 0) {
+          score += 20;
+          issues.push('Contains interactive forms/logins');
+        }
+
+      } catch (fetchErr) {
+        if (fetchErr.name === 'AbortError') {
+          score += 15;
+          issues.push('Page load timed out (Extremely slow response)');
+        } else {
+          score += 10;
+          issues.push('Live page inspection failed or blocked');
+        }
+      }
+    }
+
   } catch (err) {
-    return { score: 90, issues: ['Invalid URL format'] };
+    return { score: 90, issues: ['Invalid URL formatting'] };
   }
 
   return {
@@ -84,7 +141,7 @@ app.post('/analyze', async (req, res) => {
     return res.status(500).json({ error: 'API key missing' });
   }
 
-  const analysis = analyzeURL(url);
+  const analysis = await analyzeURL(url);
 
   try {
     const prompt = `
