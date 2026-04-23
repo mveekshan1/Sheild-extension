@@ -20,26 +20,37 @@ This project is currently in the **prototype stage** for the
 
 ---
 
-## 🚀 Live Demo (Web Simulator)
+## 🚀 Live Demo
 
-Experience SHIELD's threat detection via our interactive web simulator:
-👉 **[View Live Demo](https://mveekshan1.github.io/Sheild-extension/)**
+Experience SHIELD's live URL analyzer on GitHub Pages:
+👉 **https://mveekshan1.github.io/Sheild-extension/**
 
-> **Note:** The web demo features an interactive **URL Risk Analyzer** that uses our real backend to dynamically fetch, parse DNS records, and inspect structural vectors of any URL. It showcases our active threat assessment capabilities without requiring Chrome installation!
+This demo accepts a real URL and sends it to the backend `/analyze` endpoint. It shows:
+- a numeric risk score
+- detected structural and network issues
+- an AI-generated explanation from Gemini
 
-### How to use the Interactive Web Demo
+### How It Works
 
-1. Enter a valid URL in the Web Demo input field (e.g., `https://google.com`).
-2. The SHIELD Node.js Backend fetches the remote page securely, checks DNS validity, and analyzes structural threats (redirects, intense script counts, insecure HTTP).
-3. The Backend assigns a cumulative risk score and forwards the structural report to the Gemini AI Engine to produce an explanation.
+1. The user enters a website URL in the demo input field.
+2. The frontend sends a POST request to `/analyze` with `{ url }`.
+3. The backend inspects the URL with:
+   - URL validation and structural analysis
+   - DNS lookup and domain signal checks
+   - page signal detection from fetched response metadata
+4. Gemini generates a concise explanation based on the backend report.
 
-**Test Cases to Try:**
-- *Low Risk*: `https://google.com` (Secure, legitimate domain).
-- *High Risk*: `http://192.168.1.1/login` (Insecure, IP-based, suspicious keyword).
+### Limitations
 
-### Web Demo vs. Browser Extension
-- **Web Demo**: Performs a point-in-time structural analysis of a given URL. It evaluates static features, DNS validity, and raw HTML payloads.
-- **Browser Extension**: Monitors real-time, behavioral threats dynamically as you traverse the web (via `chrome.webRequest` and `MutationObserver`). The extension catches invisible DOM injections and sneaky network requests that static URL scanning cannot see.
+- The web demo performs point-in-time URL analysis only.
+- It does NOT monitor real-time browser activity or page scripts.
+- Full protection is delivered by the Chrome extension, which observes live DOM and network behavior.
+
+### Architecture
+
+User → Web Demo → Backend → Gemini API
+
+The Chrome extension runs separately and provides real-time browser monitoring through background scripts and popup reporting.
 
 ---
 
@@ -70,29 +81,6 @@ SHIELD is a Chrome extension that:
 - Interactive URL structural and DNS Risk Scoring (Web Demo + Backend)
 - Gemini AI context-aware explanations  
 - Cumulative Risk Metrics  
-
----
-
-```mermaid
-graph LR
-  subgraph Chrome Extension
-    A[Browser Content] -->|DOM/Network Observer| B(Background Script)
-    B -->|Detected Threats| C(Extension Popup)
-  end
-
-  subgraph Render / Local Backend
-    D[Node.js Express Server]
-    D -->|DNS & Fetch Scanner| E(analyzeURL Logic)
-  end
-
-  subgraph Public Demo
-    F[Web UI URL Input] -->|POST /analyze| D
-  end
-  
-  C -->|POST /analyze| D
-  E -->|Structural Report| G((Google Gemini v1))
-  G -->|Explanation| D
-```
 
 ---
 

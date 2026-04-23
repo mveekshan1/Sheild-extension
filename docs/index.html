@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SHIELD - Real-Time Browser Threat Detection</title>
+  <title>SHIELD Web Demo</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -12,61 +12,56 @@
     <header>
       <div class="logo">
         <span class="icon">🛡️</span>
-        <h1>SHIELD Simulator</h1>
+        <div>
+          <h1>SHIELD Web Demo</h1>
+          <p class="subtitle">Analyze a URL and inspect the backend risk report.</p>
+        </div>
       </div>
-      <p class="subtitle">AI-Powered Threat Detection Demo</p>
     </header>
 
     <main>
-      <section class="controls-section">
-        <h2>Analyze Website URL</h2>
-        <p>Enter any URL to test SHIELD's dynamic DNS, Fetch, and structural threat detection.</p>
-        
-        <form id="analyze-form" class="url-input-form">
-          <input type="url" id="url-input" placeholder="e.g. https://google.com or http://192.168.1.1/login" required autocomplete="off" />
-          <button type="submit" class="action-btn analyze-btn">🔍 Analyze URL</button>
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Enter a website URL</h2>
+          <p>Get a risk score, structured issue list, and AI explanation from the backend.</p>
+        </div>
+
+        <form id="analyze-form" class="input-panel">
+          <label class="sr-only" for="urlInput">Website URL</label>
+          <input id="urlInput" type="text" placeholder="Enter a website URL (e.g., https://example.com)" autocomplete="off" />
+          <button id="analyzeBtn" type="submit" class="action-btn">Analyze URL</button>
         </form>
+
+        <div id="messageBox" class="message-box" aria-live="polite"></div>
+        <div id="loading" class="loading hidden">Analyzing URL, please wait…</div>
       </section>
 
-      <section class="results-section">
-        <div class="dashboard">
-          <div class="dashboard-header">
-            <h3>Analysis Results</h3>
-            <div id="status-indicator" class="status-indicator idle"></div>
+      <section id="resultContainer" class="results-section hidden">
+        <div class="result-card">
+          <div class="result-header">
+            <h3>Risk score</h3>
           </div>
-          
-          <div class="metric-cards">
-            <div class="card">
-              <h4>Risk Score</h4>
-              <div class="score-display">
-                <span id="risk-score">0</span><span class="max-score">/100</span>
-              </div>
-            </div>
-            <div class="card">
-              <h4>Severity Level</h4>
-              <div id="severity-level" class="severity-display safe">SAFE</div>
-            </div>
-          </div>
+          <div id="riskScore" class="risk-score">—</div>
+        </div>
 
-          <div class="issues-container">
-            <h4>Detected Structural Issues</h4>
-            <ul id="issues-list" class="issues-list">
-              <li class="placeholder-text">Submit a URL to see technical findings.</li>
-            </ul>
+        <div class="result-card">
+          <div class="result-header">
+            <h3>Issues</h3>
           </div>
+          <ul id="issuesList" class="issues-list"></ul>
+        </div>
 
-          <div class="explanation-container">
-            <h4>Gemini AI Explanation</h4>
-            <div id="explanation-box" class="explanation-box">
-              <p class="placeholder-text">Waiting for threat simulation...</p>
-            </div>
+        <div class="result-card">
+          <div class="result-header">
+            <h3>AI explanation</h3>
           </div>
+          <p id="explanation" class="explanation-text"></p>
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Powered by Google Gemini API | <a href="https://github.com/mveekshan1/Sheild-extension" target="_blank">View on GitHub</a></p>
+      <p>Powered by Google Gemini API | <a href="https://github.com/mveekshan1/Sheild-extension" target="_blank" rel="noreferrer">View on GitHub</a></p>
     </footer>
   </div>
 

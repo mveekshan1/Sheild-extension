@@ -1,119 +1,119 @@
 /**
  * SHIELD Web Demo Script
- * Interacts with the backend for dynamic URL threat analysis.
+ * Sends an entered URL to the backend API and renders the real risk report.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  
-  const BACKEND_URL = isLocalhost 
-    ? 'http://localhost:3000/analyze' 
+  const BACKEND_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000/analyze'
     : 'https://sheild-extension.onrender.com/analyze';
 
   const analyzeForm = document.getElementById('analyze-form');
-  const urlInput = document.getElementById('url-input');
-  const analyzeBtn = document.querySelector('.analyze-btn');
-  const statusIndicator = document.getElementById('status-indicator');
-  const riskScoreDisplay = document.getElementById('risk-score');
-  const severityLevelDisplay = document.getElementById('severity-level');
-  const issuesList = document.getElementById('issues-list');
-  const explanationBox = document.getElementById('explanation-box');
+  const urlInput = document.getElementById('urlInput');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const resultContainer = document.getElementById('resultContainer');
+  const riskScore = document.getElementById('riskScore');
+  const issuesList = document.getElementById('issuesList');
+  const explanation = document.getElementById('explanation');
+  const loading = document.getElementById('loading');
+  const messageBox = document.getElementById('messageBox');
 
-  analyzeForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const targetUrl = urlInput.value.trim();
-    if (!targetUrl) return;
+  analyzeForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearMessage();
 
-    await analyzeThreat(targetUrl);
+    const userInput = urlInput.value.trim();
+    const validatedUrl = validateUrl(userInput);
+    if (!validatedUrl) return;
+
+    await sendAnalysisRequest(validatedUrl);
   });
 
-  async function analyzeThreat(targetUrl) {
-    // UI Update - Loading State
-    urlInput.disabled = true;
-    analyzeBtn.disabled = true;
-    analyzeBtn.innerHTML = `⏳ Analyzing...`;
-    statusIndicator.className = 'status-indicator loading';
-    
-    riskScoreDisplay.textContent = '...';
-    severityLevelDisplay.textContent = 'ANALYZING';
-    severityLevelDisplay.className = 'severity-display';
-    issuesList.innerHTML = `<li class="placeholder-text">Scanning structural and network layers...</li>`;
-    explanationBox.innerHTML = `<p class="placeholder-text">Connecting to Gemini AI Engine (${isLocalhost ? 'Local' : 'Remote'})...</p>`;
+  function validateUrl(input) {
+    if (!input) {
+      showMessage('Please enter a website URL before analyzing.', 'error');
+      return null;
+    }
 
     try {
-      // POST Request to backend API
+      const parsedUrl = new URL(input);
+      return parsedUrl.href;
+    } catch (error) {
+      showMessage('Please enter a valid URL with http:// or https://.', 'error');
+      return null;
+    }
+  }
+
+  function showMessage(message, type = 'info') {
+    messageBox.textContent = message;
+    messageBox.className = `message-box ${type}`;
+  }
+
+  function clearMessage() {
+    messageBox.textContent = '';
+    messageBox.className = 'message-box';
+  }
+
+  function setLoading(isLoading) {
+    loading.classList.toggle('hidden', !isLoading);
+    analyzeBtn.disabled = isLoading;
+    urlInput.disabled = isLoading;
+  }
+
+  function renderIssues(issues = []) {
+    issuesList.textContent = '';
+
+    if (!Array.isArray(issues) || issues.length === 0) {
+      const listItem = document.createElement('li');
+      listItem.textContent = 'No issues detected for this URL.';
+      listItem.className = 'placeholder-text';
+      issuesList.appendChild(listItem);
+      return;
+    }
+
+    issues.forEach((issue) => {
+      const listItem = document.createElement('li');
+      listItem.textContent = issue;
+      issuesList.appendChild(listItem);
+    });
+  }
+
+  function renderResults(data) {
+    const score = Number(data.risk_score);
+    const isValidScore = Number.isFinite(score);
+
+    resultContainer.classList.remove('hidden');
+    riskScore.textContent = isValidScore ? score.toString() : '—';
+    riskScore.className = `risk-score ${score > 60 ? 'high' : score > 30 ? 'medium' : 'safe'}`;
+
+    renderIssues(data.issues);
+    explanation.textContent = data.explanation || 'No explanation returned from the backend.';
+  }
+
+  async function sendAnalysisRequest(url) {
+    setLoading(true);
+    resultContainer.classList.add('hidden');
+    showMessage('Sending URL to backend for analysis…', 'info');
+
+    try {
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: targetUrl })
+        body: JSON.stringify({ url })
       });
 
       if (!response.ok) {
-        let errMessage = `Backend Error (${response.status})`;
-        try {
-          const errData = await response.json();
-          if(errData.error) errMessage += `: ${errData.error}`;
-        } catch(e) {}
-        throw new Error(errMessage);
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || `Server returned ${response.status}`);
       }
 
-      const data = await response.json();
-      
-      // Calculate severity string
-      let severityStr = 'SAFE';
-      let severityClass = 'safe';
-      if (data.risk_score > 60) {
-        severityStr = 'HIGH';
-        severityClass = 'high';
-      } else if (data.risk_score > 30) {
-        severityStr = 'MEDIUM';
-        severityClass = 'medium';
-      }
-
-      // Update UI with Success state
-      statusIndicator.className = 'status-indicator success';
-      riskScoreDisplay.textContent = data.risk_score;
-      severityLevelDisplay.textContent = severityStr;
-      severityLevelDisplay.className = `severity-display ${severityClass}`;
-      
-      // Render Issues List
-      issuesList.innerHTML = '';
-      if (data.issues && data.issues.length > 0) {
-        data.issues.forEach(issue => {
-          const li = document.createElement('li');
-          li.textContent = issue;
-          issuesList.appendChild(li);
-        });
-      } else {
-        issuesList.innerHTML = `<li class="placeholder-text">No technical issues detected.</li>`;
-      }
-      
-      // Render Gemini Explanation
-      explanationBox.innerHTML = `<p class="response-text">${data.explanation || "No explanation provided."}</p>`;
-      
+      const responseData = await response.json();
+      renderResults(responseData);
+      showMessage('Analysis complete.', 'success');
     } catch (error) {
-      // Handle Network/Backend Errors gracefully
-      statusIndicator.className = 'status-indicator error';
-      riskScoreDisplay.textContent = '—';
-      severityLevelDisplay.textContent = 'ERROR';
-      severityLevelDisplay.className = 'severity-display high';
-      
-      issuesList.innerHTML = `<li class="placeholder-text">Scan aborted due to connection failure.</li>`;
-      
-      explanationBox.innerHTML = `
-        <div class="error-text">
-          <p><strong>Connection Failed:</strong> ${error.message}</p>
-          <p style="margin-top: 10px; font-size: 0.9em;">
-            <em>Note: The requested AI backend API at <code>${BACKEND_URL}</code> could not be reached. 
-            If running locally, verify your Express backend is active on port 3000.</em>
-          </p>
-        </div>
-      `;
+      showMessage(`Unable to analyze URL: ${error.message}`, 'error');
     } finally {
-      // Restore Button State
-      urlInput.disabled = false;
-      analyzeBtn.disabled = false;
-      analyzeBtn.innerHTML = `🔍 Analyze URL`;
+      setLoading(false);
     }
   }
 });
