@@ -55,7 +55,7 @@ SHIELD is a Chrome extension that:
 Browser Activity → Detection → Risk Scoring → Gemini → Alert
 
 ---
-## Live Link: https://github.com/mveekshan1/Sheild-extension/deployments/github-pages
+## Live Link: https://mveekshan1.github.io/Sheild-extension/
 ## 📦 Installation
 
 git clone https://github.com/mveekshan1/Sheild-extension.git
